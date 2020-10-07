@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+<script>
+const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+
+const cities = []; //we neeed an empty array to put our cities into
+fetch(endpoint) //we need to fetch our data, fetch will return a promise
+  .then(blob => blob.json())//when a promise comes true, returns a ¨blob¨ of data, a bunch of data we have to transform into Json, and this returns another promise
+  .then(data => cities.push(...data));//luego se llena el array cities con el data, how do i get each item to go into cities? we spread into this push method, los puntos suspensivos hacen una separacion o spread del arreglo, si no se hace esto, se push el arreglo data a cities, pero es como si cities tuviera un arreglo de ciudades en la posición 1, hay que hacerle el spread para que cities se llene de data pero data estando ya "separado" y se llenen 1000 posiciones del arreglo cities
+
+function findMatches(wordToMatch, cities) { //se reciben la palabra a buscar y el arreglo de ciudades
+  console.log("Cities ", cities)
+  const regex = new RegExp(wordToMatch, 'gi');//i es case insensitive, g es para buscar en toda la palabra segun charles, g is global
+  return cities.filter(place => { //here we filter the array of cities
+    // here we need to figure out if the city or state matches what was searched
+    return place.city.match(regex) || place.state.match(regex)//devuelve en place, en este momento ya tiene toda la informaciòn de cada lugar, y cada lugar o "place" contiene un .city, que se filtra con expresiones regulares, o también por estado....   .match se usa para expresiones regulares, para dar los matches
+  });
+}
+
+function numberWithCommas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); //hace formato a los miles, el nùmero
+}
+
+function displayMatches() {
+  const matchArray = findMatches(this.value, cities); //acá recibe el valor, y se lo manda a findMatches, this.value es el valor que recibe del input search
+  console.log("matchArray ", matchArray);
+  const html = matchArray.map(place => {
+    const regex = new RegExp(this.value, 'gi');
+    const cityName = place.city.replace(regex, `<span class="hl">${this.value}</span>`);
+    const stateName = place.state.replace(regex, `<span class="hl">${this.value}</span>`);
+    return `
+      <li>
+        <span class="name">${cityName}, ${stateName}</span>
+        <span class="population">${numberWithCommas(place.population)}</span>
+      </li>
+    `;
+  }).join('');
+  suggestions.innerHTML = html;
+}
+
+const searchInput = document.querySelector('.search'); //se agarra lo que se escriba en el .search
+const suggestions = document.querySelector('.suggestions');
+
+searchInput.addEventListener('change', displayMatches);
+searchInput.addEventListener('keyup', displayMatches);
+
+
+
+</script>
+</body>
+</html>

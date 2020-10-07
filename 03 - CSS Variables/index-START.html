@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scoped CSS Variables and JS</title>
+</head>
+<body>
+  <h2>Update CSS Variables with <span class='h1'>JS</span></h2>
+
+  <div class="controls">
+    <label for="spacing">Spacing:</label>
+    <input id="spacing" type="range" name="spacing" min="10" max="200" value="10" data-sizing="px">
+
+    <label for="blur">Blur:</label>
+    <input id="blur" type="range" name="blur" min="0" max="25" value="10" data-sizing="px">
+
+    <label for="base">Base Color</label>
+    <input id="base" type="color" name="base" value="#ffc600">
+  </div>
+
+  <img src="https://source.unsplash.com/7bwQXzbF6KE/800x500">
+
+  <style>
+    :root {/*default values*/
+      --base: #ffc600;
+      --spacing: 50px;
+      --blur: 10px;
+    }
+
+    img {
+      padding: var(--spacing); /* -- es comos se declaran las variables en CSS, es con $ en sass*/
+      background: var(--base);
+      filter: blur(var(--blur));
+
+    }
+
+    .h1{
+      color: var(--base);
+    }
+
+
+    /*
+      misc styles, nothing to do with CSS variables
+    */
+
+    body {
+      text-align: center;
+      background: #193549;
+      color: white;
+      font-family: 'helvetica neue', sans-serif;
+      font-weight: 100;
+      font-size: 50px;
+    }
+
+    .controls {
+      margin-bottom: 50px;
+    }
+
+    input {
+      width: 100px;
+    }
+  </style>
+
+  <script>
+    const inputs = document.querySelectorAll('.controls input') /*se selecciona todos los inputs del div control*/
+
+    function handleUpdate(){
+      const suffix = this.dataset.sizing || ''; /*this se refiere a cada elemento html en este caso a los inputs............ dataset es el conjunto de todos los atributos data de un elemento, e.g data-moni, data-sizing (en este caso)*/
+      document.documentElement.style.setProperty(`--${this.name}`, this.value + suffix); /*coge el documento y le agrega el style de css, si fuera un archivo externno de css se le sobreescribe y se le aplica localmente. `--${this.name}` se coge la variable dinamicamente, se le coge el valor en this.value y se le agrega el sufijo en caso de necesitarlo para ponerselo al valor (10px)*/
+
+    }
+
+    inputs.forEach(input => { /*siempre que hay un foreach se le hace una función para iterar sobre cada elemento, que en este caso recibe  como "input", asì que por cada elemento input del array inputs se le agrega un eventListener*/
+      input.addEventListener('change', handleUpdate)
+      input.addEventListener('mousemove', handleUpdate)
+    });
+
+    /*  en este caso se usò un arrow function  inputs.forEach(input => input.addEventListener('change', handleUpdate));
+    inputs.forEach(input => input.addEventListener('mousemove', handleUpdate));*/ 
+
+
+  </script>
+
+</body>
+</html>
